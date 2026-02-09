@@ -3,7 +3,7 @@ import { Routes, Route } from "react-router-dom";
 
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
-import ShopCartProvider from "./context/ShopContext.jsx";   // ✅ CORRECT
+import ShopCartProvider from "./context/ShopContext.jsx";
 import SearchBar from "./components/SearchBar.jsx";
 
 import Home from "./pages/Home.jsx";
@@ -14,7 +14,9 @@ import Product from "./pages/Product.jsx";
 import Cart from "./pages/Cart.jsx";
 import PlaceOrder from "./pages/placeOrder.jsx";
 import Contact from "./pages/Contact.jsx";
-import Order from "./pages/Order.jsx";   // ✅ CORRECT
+import Order from "./pages/Order.jsx";
+import Verify from "./pages/Verify.jsx";
+import Profile from "./pages/profile.jsx";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -34,12 +36,13 @@ const App = () => {
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/profile" element={<Profile />} />
 
             <Route path="/product/:productId" element={<Product />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/place-order" element={<PlaceOrder />} />
-
-            <Route path="/orders" element={<Order />} /> {/* ✅ FIXED */}
+            <Route path="/orders" element={<Order />} />
+            <Route path="/verify" element={<Verify />} />
           </Routes>
         </main>
 
