@@ -1,31 +1,32 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
+
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
-import ShopCartProvider from "./context/ShopContext.jsx";   // ✅ import the provider
-import SearchBar from "./components/searchBar.jsx";
+import ShopCartProvider from "./context/ShopContext.jsx";   // ✅ CORRECT
+import SearchBar from "./components/SearchBar.jsx";
 
-import Home from "./pages/home.jsx";
-import Collection from "./pages/collection.jsx";
-import About from "./pages/about.jsx";
-import Login from "./pages/login.jsx";
-import Order from "./pages/Order.jsx";
-import Product from "./pages/product.jsx";
-import Cart from "./pages/cart.jsx";
+import Home from "./pages/Home.jsx";
+import Collection from "./pages/Collection.jsx";
+import About from "./pages/About.jsx";
+import Login from "./pages/Login.jsx";
+import Product from "./pages/Product.jsx";
+import Cart from "./pages/Cart.jsx";
 import PlaceOrder from "./pages/placeOrder.jsx";
-// import Hero from "./components/Hero.jsx";
-import Contact from "./pages/contact.jsx";
+import Contact from "./pages/Contact.jsx";
+import Order from "./pages/Order.jsx";   // ✅ CORRECT
+
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
   return (
-    <ShopCartProvider>   {/* ✅ use the correct provider */}
+    <ShopCartProvider>
       <div className="min-h-screen flex flex-col">
-        <ToastContainer/>
+        <ToastContainer />
         <Navbar />
-        <SearchBar/>
-        {/* <Hero /> */}
+        <SearchBar />
+
         <main className="flex-1 px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] py-8">
           <Routes>
             <Route path="/" element={<Home />} />
@@ -33,12 +34,15 @@ const App = () => {
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/place-order" element={<PlaceOrder />} />
-            <Route path="/order" element={<Order />} />
-           <Route path="/product/:productId" element={<Product />} />
+
+            <Route path="/product/:productId" element={<Product />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/place-order" element={<PlaceOrder />} />
+
+            <Route path="/orders" element={<Order />} /> {/* ✅ FIXED */}
           </Routes>
         </main>
+
         <Footer />
       </div>
     </ShopCartProvider>
