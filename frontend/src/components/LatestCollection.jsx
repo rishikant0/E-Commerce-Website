@@ -4,7 +4,7 @@ import Title from "./Title.jsx";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
-const categories = ["All", "Men", "Women", "Kids", "Trending"];
+const categories = ["All", "Men", "Women", "Kids"];
 
 const LatestCollection = () => {
   const { products } = useContext(ShopContext);
