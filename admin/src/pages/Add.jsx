@@ -5,7 +5,7 @@ import { backendUrl } from "../App.jsx";
 import { toast } from "react-toastify";
 
 const Add = () => {
-  const token = localStorage.getItem("adminToken"); // ✅ FIX
+  const token = localStorage.getItem("adminToken");
 
   const [image1, setImage1] = useState(null);
   const [image2, setImage2] = useState(null);
@@ -23,15 +23,8 @@ const Add = () => {
   const onSubmitHandler = async (e) => {
     e.preventDefault();
 
-    if (!token) {
-      toast.error("Admin not logged in");
-      return;
-    }
-
-    if (sizes.length === 0) {
-      toast.error("Select at least one size");
-      return;
-    }
+    if (!token) return toast.error("Admin not logged in");
+    if (sizes.length === 0) return toast.error("Select at least one size");
 
     try {
       const formData = new FormData();
@@ -49,18 +42,14 @@ const Add = () => {
       formData.append("sizes", JSON.stringify(sizes));
       formData.append("isBestSeller", isBestSeller);
 
-      const response = await axios.post(
+      const res = await axios.post(
         `${backendUrl}/api/product/add`,
         formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // ✅ FIX
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      if (response.data.success) {
-        toast.success(response.data.message);
+      if (res.data.success) {
+        toast.success(res.data.message);
 
         setName("");
         setDescription("");
@@ -73,83 +62,155 @@ const Add = () => {
         setImage2(null);
         setImage3(null);
         setImage4(null);
-      } else {
-        toast.error(response.data.message);
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error(error.response?.data?.message || "Add product failed");
+      } else toast.error(res.data.message);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Add product failed");
     }
   };
+return (
+  <div className="flex h-[calc(100vh-70px)] bg-slate-100 p-6">
+    
+    <form
+      onSubmit={onSubmitHandler}
+      className="w-full max-w-6xl mx-auto bg-white rounded-xl shadow-lg p-6 space-y-4"
+    >
+      <h2 className="text-2xl font-bold text-slate-800">
+        Add New Product
+      </h2>
 
-  return (
-    <form onSubmit={onSubmitHandler} className="flex flex-col gap-4">
+      {/* TOP GRID */}
+      <div className="grid grid-cols-3 gap-6">
 
-      <div className="flex gap-2">
-        {[image1, image2, image3, image4].map((img, i) => (
-          <label key={i}>
-            <img
-              src={img ? URL.createObjectURL(img) : assets.upload_area}
-              className="w-20 h-20 border object-cover cursor-pointer"
-              alt=""
-            />
-            <input
-              hidden
-              type="file"
-              onChange={(e) =>
-                [setImage1, setImage2, setImage3, setImage4][i](e.target.files[0])
+        {/* IMAGE SECTION */}
+        <div>
+          <p className="font-semibold mb-2">Images</p>
+
+          <div className="grid grid-cols-2 gap-3">
+            {[image1, image2, image3, image4].map((img, i) => (
+              <label
+                key={i}
+                className="flex items-center justify-center h-24 border-2 border-dashed rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition"
+              >
+                <img
+                  src={img ? URL.createObjectURL(img) : assets.upload_area}
+                  className="h-8 opacity-70"
+                  alt=""
+                />
+                <input
+                  hidden
+                  type="file"
+                  onChange={(e) =>
+                    [setImage1, setImage2, setImage3, setImage4][i](
+                      e.target.files[0]
+                    )
+                  }
+                />
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* NAME + DESCRIPTION */}
+        <div className="col-span-2 space-y-3">
+          <input
+            className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+            placeholder="Product Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+
+          <textarea
+            rows="4"
+            className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+            placeholder="Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            required
+          />
+        </div>
+      </div>
+
+      {/* CATEGORY / PRICE */}
+      <div className="grid grid-cols-3 gap-4">
+        <select
+          className="p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          required
+        >
+          <option value="">Category</option>
+          <option value="men">Men</option>
+          <option value="women">Women</option>
+          <option value="kids">Kids</option>
+        </select>
+
+        <select
+          className="p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
+          value={subCategory}
+          onChange={(e) => setSubCategory(e.target.value)}
+          required
+        >
+          <option value="">Sub Category</option>
+          <option value="Topwear">Topwear</option>
+          <option value="Bottomwear">Bottomwear</option>
+          <option value="Footwear">Footwear</option>
+        </select>
+
+        <input
+          type="number"
+          className="p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
+          placeholder="Price"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          required
+        />
+      </div>
+
+      {/* SIZES + BESTSELLER */}
+      <div className="flex items-center justify-between">
+
+        <div className="flex gap-2">
+          {["s", "m", "l", "xl", "xxl"].map((size) => (
+            <button
+              type="button"
+              key={size}
+              onClick={() =>
+                setSizes((prev) =>
+                  prev.includes(size)
+                    ? prev.filter((s) => s !== size)
+                    : [...prev, size]
+                )
               }
-            />
-          </label>
-        ))}
+              className={`px-4 py-1 rounded-md border text-sm transition ${
+                sizes.includes(size)
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : "bg-white hover:bg-slate-100"
+              }`}
+            >
+              {size.toUpperCase()}
+            </button>
+          ))}
+        </div>
+
+        <label className="flex items-center gap-2 text-sm font-medium">
+          <input
+            type="checkbox"
+            checked={isBestSeller}
+            onChange={() => setIsBestSeller(!isBestSeller)}
+            className="accent-blue-600"
+          />
+          Bestseller
+        </label>
       </div>
 
-      <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Product name" required />
-      <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" required />
-
-      <select value={category} onChange={(e) => setCategory(e.target.value)} required>
-        <option value="">Category</option>
-        <option value="men">Men</option>
-        <option value="women">Women</option>
-        <option value="kids">Kids</option>
-      </select>
-
-      <select value={subCategory} onChange={(e) => setSubCategory(e.target.value)} required>
-        <option value="">Sub Category</option>
-        <option value="Topwear">Topwear</option>
-        <option value="Bottomwear">Bottomwear</option>
-        <option value="Footwear">Footwear</option>
-      </select>
-
-      <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Price" required />
-
-      <div className="flex gap-2">
-        {["s", "m", "l", "xl", "xxl"].map((size) => (
-          <button
-            type="button"
-            key={size}
-            onClick={() =>
-              setSizes((prev) =>
-                prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size]
-              )
-            }
-            className={`px-3 py-1 border ${sizes.includes(size) ? "bg-blue-600 text-white" : ""}`}
-          >
-            {size.toUpperCase()}
-          </button>
-        ))}
-      </div>
-
-      <label>
-        <input type="checkbox" checked={isBestSeller} onChange={() => setIsBestSeller(!isBestSeller)} />
-        Bestseller
-      </label>
-
-      <button className="bg-blue-600 text-white px-6 py-2 rounded">
+      {/* BUTTON */}
+      <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md font-semibold transition">
         Add Product
       </button>
     </form>
-  );
-};
+  </div>
+);
+}
 
 export default Add;

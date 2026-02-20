@@ -13,7 +13,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export const backendUrl = import.meta.env.VITE_BACKEND_URL;
-export const currency = '$';
+export const currency = "$";
 
 function App() {
   const [token, setToken] = useState(
@@ -25,34 +25,40 @@ function App() {
   }, [token]);
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="min-h-screen bg-gray-50">
       <ToastContainer />
 
       {token === "" ? (
         <Login setToken={setToken} />
       ) : (
-        <>
-          <Navbar setToken={setToken} />
-          <hr />
+        <div className="flex flex-col h-screen">
 
-          <div className="flex w-full">
+          {/* TOP NAVBAR */}
+          <Navbar setToken={setToken} />
+
+          {/* MAIN AREA */}
+          <div className="flex flex-1 overflow-hidden">
+
+            {/* SIDEBAR */}
             <Sidebar />
 
-            <div className="flex-1 ml-[250px] p-6 text-gray-600">
+            {/* CONTENT */}
+            <main className="flex-1 p-8 overflow-y-auto text-gray-700">
               <Routes>
-                {/* ✅ DEFAULT ROUTE */}
+
                 <Route path="/" element={<Navigate to="/add" />} />
 
                 <Route path="/add" element={<Add token={token} />} />
                 <Route path="/list" element={<List token={token} />} />
                 <Route path="/orders" element={<Orders token={token} />} />
 
-                {/* ❌ Optional 404 */}
                 <Route path="*" element={<Navigate to="/add" />} />
+
               </Routes>
-            </div>
+            </main>
+
           </div>
-        </>
+        </div>
       )}
     </div>
   );
