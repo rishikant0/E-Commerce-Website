@@ -3,7 +3,28 @@ import { createContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { products as assetProducts } from "../assets/frontend_assets/assets";
 export const ShopContext = createContext();
+
+const normalizeProduct = (product) => {
+  const imageSource = product.images ?? product.image ?? [];
+  const image = Array.isArray(imageSource)
+    ? imageSource
+    : imageSource
+      ? [imageSource]
+      : [];
+
+  return {
+    ...product,
+    _id: product._id ?? product.id,
+    id: product.id ?? product._id,
+    image,
+    images: image,
+    sizes: product.sizes?.length ? product.sizes : ["S", "M", "L", "XL"],
+  };
+};
+
+const fallbackProducts = assetProducts.map(normalizeProduct);
 
 const ShopCartProvider = ({ children }) => {
   const currency = "$";
@@ -13,7 +34,7 @@ const ShopCartProvider = ({ children }) => {
   const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [cartItems, setCartItems] = useState({});
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState(fallbackProducts);
   const [token, setToken] = useState(() => {
     // Initialize token from localStorage on first load
     const stored = localStorage.getItem('token');
@@ -25,6 +46,12 @@ const ShopCartProvider = ({ children }) => {
 
   // ADD TO CART
   const addToCart = async (itemId, size) => {
+    if (!token) {
+      toast.info("Create an account or log in to add items to your cart");
+      navigate("/login?mode=signup");
+      return;
+    }
+
     if (!size) {
       toast.error("Please select the size");
       return;
@@ -153,19 +180,15 @@ const updateQuantity = async (itemId, size, quantity) => {
   const getProductsData = async() =>{
     try {
       const response = await axios.get(backandUrl + "/api/product/list");
-      if (response.data.success) {
-        // Normalize backend `images` field to frontend `image` to keep compatibility
-        const normalized = response.data.products.map(p => ({
-          ...p,
-          image: p.images || p.image || [],
-        }));
-        setProducts(normalized);
+      if (response.data.success && Array.isArray(response.data.products) && response.data.products.length) {
+        setProducts(response.data.products.map(normalizeProduct));
       } else {
-        console.log("Failed to fetch products:", response.data.message);
+        console.warn("Product API returned no products; using local fallback.");
+        setProducts(fallbackProducts);
       }
     } catch (error) {
-      console.log("Error fetching products:", error);
-      toast.error(error.message);
+      console.warn("Product API is unavailable; using local fallback.");
+      setProducts(fallbackProducts);
     }
   }
 
@@ -197,6 +220,14 @@ const getUsercart = async (token) => {
     if (error.response) {
       console.error("Response status:", error.response.status);
       console.error("Response data:", error.response.data);
+
+      if (error.response.status === 401) {
+        localStorage.removeItem("token");
+        setToken("");
+        toast.error("Your session has expired. Please log in again.");
+        navigate("/login");
+        return;
+      }
     }
     toast.error("Error fetching cart data: " + error.message);
   }

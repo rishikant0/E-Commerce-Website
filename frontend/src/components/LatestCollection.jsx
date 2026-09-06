@@ -109,7 +109,7 @@ const LatestCollection = () => {
 
                 {/* Product Image */}
                 <motion.img
-                  src={item.images?.[0] || "/placeholder.png"}
+                  src={item.image?.[0] || "/placeholder.png"}
                   alt={item.name}
                   className="w-full h-72 object-cover"
                   whileHover={{ scale: 1.05 }}

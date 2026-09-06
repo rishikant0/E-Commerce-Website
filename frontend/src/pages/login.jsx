@@ -1,10 +1,14 @@
 import React, { useState, useContext, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 
 const Login = () => {
-  const [currentState, setCurrentState] = useState("Login");
+  const [searchParams] = useSearchParams();
+  const [currentState, setCurrentState] = useState(() =>
+    searchParams.get("mode") === "signup" ? "Sign Up" : "Login"
+  );
   const { token, setToken, navigate, backandUrl } = useContext(ShopContext);
 
   const [name, setName] = useState("");

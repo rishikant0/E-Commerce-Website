@@ -10,12 +10,12 @@ const ProductItems = ({ id, image, name, price }) => {
       <div className="overflow-hidden">
         <img
           className="hover:scale-110 transition ease-in-out"
-          src={Array.isArray(image) ? image[0] : image}
+          src={Array.isArray(image) ? image[0] : image || "/placeholder.png"}
           alt={name}
         />
       </div>
       <div className="mt-2">
-        <p className="text-gray-500">{name}</p>   {/* ✅ now shows */}
+        <p className="text-gray-500">{name}</p>
         <p className="text-sm font-medium">
           {currency}{price}
         </p>

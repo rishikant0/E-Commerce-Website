@@ -10,20 +10,15 @@ import productRouter from "./routes/productRoute.js";
 import cartRoute from './routes/cartRoute.js';
 import orderRoute from './routes/orderRoute.js';
 
-// Verify JWT_SECRET_KEY is loaded
-console.log("===== ENVIRONMENT VERIFICATION =====");
-console.log("🔑 JWT_SECRET_KEY:", process.env.JWT_SECRET_KEY);
-console.log("🔑 JWT_SECRET_KEY length:", process.env.JWT_SECRET_KEY?.length);
-console.log("🔑 JWT_SECRET_KEY char codes:", [...(process.env.JWT_SECRET_KEY || '')].map(c => c.charCodeAt(0)).join(','));
-console.log("✅ Backend server starting...");
-console.log("===== END VERIFICATION =====");
+if (!process.env.JWT_SECRET_KEY) {
+  throw new Error("JWT_SECRET_KEY is missing. Add it to Backend/.env.");
+}
+
+console.log("Backend server starting...");
 
 //App Config
 const app = express();
 const port = process.env.PORT || 5000;
-
-connectDB();
-connectCloudinary();
 
 app.use(express.json());
 app.use(cors());
@@ -38,6 +33,18 @@ app.get('/', (req, res) => {
   res.send("Api calling");
 });
 
-app.listen(port, () => {
-  console.log('server started on Port :' + port);
-});
+const startServer = async () => {
+  try {
+    await connectDB();
+    connectCloudinary();
+
+    app.listen(port, () => {
+      console.log('server started on Port :' + port);
+    });
+  } catch (error) {
+    console.error('❌ Backend startup failed:', error.message);
+    process.exitCode = 1;
+  }
+};
+
+startServer();
